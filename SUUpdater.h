@@ -45,6 +45,9 @@
 - (void)setSendsSystemProfile:(BOOL)sendsSystemProfile;
 - (BOOL)sendsSystemProfile;
 
+// This method always returns the full system profile information. Useful for display in custom UI where you need to know what Sparkle could be sending.
+- (NSArray *)systemProfile;
+
 - (void)setAutomaticallyDownloadsUpdates:(BOOL)automaticallyDownloadsUpdates;
 - (BOOL)automaticallyDownloadsUpdates;
 

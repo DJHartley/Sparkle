@@ -117,11 +117,7 @@ static NSString *SUUpdaterDefaultsObservationContext = @"SUUpdaterDefaultsObserv
     
     if (shouldPrompt)
     {
-		NSArray *profileInfo = [host systemProfile];
-		// Always say we're sending the system profile here so that the delegate displays the parameters it would send.
-		if ([delegate respondsToSelector:@selector(feedParametersForUpdater:sendingSystemProfile:)]) 
-			profileInfo = [profileInfo arrayByAddingObjectsFromArray:[delegate feedParametersForUpdater:self sendingSystemProfile:YES]];
-        [SUUpdatePermissionPrompt promptWithHost:host systemProfile:profileInfo delegate:self];
+        [SUUpdatePermissionPrompt promptWithHost:host systemProfile:[self systemProfile] delegate:self];
         // We start the update checks and register as observer for changes after the prompt finishes
 	}
     else 
@@ -326,6 +322,15 @@ static NSString *SUUpdaterDefaultsObservationContext = @"SUUpdaterDefaultsObserv
 - (BOOL)sendsSystemProfile
 {
 	return [host boolForUserDefaultsKey:SUSendProfileInfoKey];
+}
+
+- (NSArray *)systemProfile {
+	NSArray *profileInfo = [host systemProfile];
+	// Always say we're sending the system profile here so that the delegate displays the parameters it would send.
+	if ([delegate respondsToSelector:@selector(feedParametersForUpdater:sendingSystemProfile:)]) 
+		profileInfo = [profileInfo arrayByAddingObjectsFromArray:[delegate feedParametersForUpdater:self sendingSystemProfile:YES]];
+
+	return profileInfo;
 }
 
 - (NSURL *)parameterizedFeedURL
