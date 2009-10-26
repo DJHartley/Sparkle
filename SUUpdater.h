@@ -19,6 +19,7 @@
 	NSString *customUserAgentString;
 	SUHost *host;
 	IBOutlet id delegate;
+    BOOL hasRegisteredObservers;
 }
 
 + (SUUpdater *)sharedUpdater;
