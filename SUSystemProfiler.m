@@ -70,10 +70,24 @@
 	}
 	error = sysctlbyname("hw.cpusubtype", &value, &length, NULL, 0);
 	if (error == 0) {
-		NSString *visibleCPUSubType;
+		NSString *visibleCPUSubType = nil;
 		if (cpuType == 7) {
 			// Intel
-			visibleCPUSubType = is64bit ? @"Intel Core 2" : @"Intel Core";	// If anyone knows how to tell a Core Duo from a Core Solo, please email tph@atomicbird.com
+            char stringValue[255];
+            size_t stringLength = sizeof(stringValue);
+            error = sysctlbyname("machdep.cpu.brand_string", &stringValue, &stringLength, NULL, 0);
+            if ((error == 0) && (stringValue != NULL)) {
+                NSString *brandString = [NSString stringWithUTF8String:stringValue];
+                NSRange range = [brandString rangeOfString:@"  "];
+                if (range.location != NSNotFound) {
+                    visibleCPUSubType = [brandString substringWithRange:NSMakeRange(0, range.location)];
+                } else {
+                    visibleCPUSubType = brandString;
+                }
+            }
+            if (!visibleCPUSubType) {
+                visibleCPUSubType = is64bit ? @"Intel Core 2" : @"Intel Core";	// If anyone knows how to tell a Core Duo from a Core Solo, please email tph@atomicbird.com
+            }
 		} else if (cpuType == 18) {
 			// PowerPC
 			switch(value) {
