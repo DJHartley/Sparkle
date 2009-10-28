@@ -133,8 +133,9 @@
 	if (appName)
 		[profileArray addObject:[NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:@"appName",@"Application Name", appName, appName,nil] forKeys:profileDictKeys]];
 	NSString *appVersion = [host version];
+	NSString *appDisplayVersion = [host displayVersion];
 	if (appVersion)
-		[profileArray addObject:[NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:@"appVersion",@"Application Version", appVersion, appVersion,nil] forKeys:profileDictKeys]];
+		[profileArray addObject:[NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:@"appVersion",@"Application Version", appVersion, appDisplayVersion,nil] forKeys:profileDictKeys]];
 	
 	// Number of displays?
 	// CPU speed
