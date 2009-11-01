@@ -73,6 +73,7 @@
 		is64bit = value == 1;
 		[profileArray addObject:[NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:@"cpu64bit", @"CPU is 64-Bit?", [NSNumber numberWithBool:is64bit], is64bit ? @"Yes" : @"No", nil] forKeys:profileDictKeys]];
 	}
+    
     length = sizeof(value);
 	error = sysctlbyname("hw.cpusubtype", &value, &length, NULL, 0);
 	if (error == 0) {
@@ -84,6 +85,7 @@
             error = sysctlbyname("machdep.cpu.brand_string", &stringValue, &stringLength, NULL, 0);
             if ((error == 0) && (stringValue != NULL)) {
                 NSString *brandString = [NSString stringWithUTF8String:stringValue];
+                // machdep.cpu.brand_string lists the CPU name, then some spaces, then some extra info. don't need the extra info
                 NSRange range = [brandString rangeOfString:@"  "];
                 if (range.location != NSNotFound) {
                     visibleCPUSubType = [brandString substringWithRange:NSMakeRange(0, range.location)];
@@ -91,9 +93,8 @@
                     visibleCPUSubType = brandString;
                 }
             }
-            if (!visibleCPUSubType) {
-                visibleCPUSubType = is64bit ? @"Intel Core 2" : @"Intel Core";	// If anyone knows how to tell a Core Duo from a Core Solo, please email tph@atomicbird.com
-            }
+            if (visibleCPUSubType == nil)
+                visibleCPUSubType = @"Other";
 		} else if (cpuType == CPU_TYPE_POWERPC) {
 			// PowerPC
 			switch(value) {
@@ -106,7 +107,12 @@
 		} else {
 			visibleCPUSubType = @"Other";
 		}
-		[profileArray addObject:[NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:@"cpusubtype",@"CPU Subtype", [NSNumber numberWithInt:value], visibleCPUSubType,nil] forKeys:profileDictKeys]];
+        
+		NSString *cpuSubType = visibleCPUSubType;
+        if ([visibleCPUSubType isEqualToString:@"Other"])
+            cpuSubType = [[NSNumber numberWithInt:value] stringValue];
+        
+        [profileArray addObject:[NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:@"cpusubtype",@"CPU Subtype", cpuSubType, visibleCPUSubType, nil] forKeys:profileDictKeys]];
 	}
 	error = sysctlbyname("hw.model", NULL, &length, NULL, 0);
 	if (error == 0) {
