@@ -50,9 +50,9 @@
 		cpuType = value;
 		NSString *visibleCPUType;
 		switch(value) {
-			case 7:		visibleCPUType=@"Intel";	break;
-			case 18:	visibleCPUType=@"PowerPC";	break;
-			default:	visibleCPUType=@"Unknown";	break;
+			case CPU_TYPE_X86:     visibleCPUType=@"Intel";   break;
+			case CPU_TYPE_POWERPC: visibleCPUType=@"PowerPC"; break;
+			default:               visibleCPUType=@"Unknown"; break;
 		}
 		[profileArray addObject:[NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:@"cputype",@"CPU Type", [NSNumber numberWithInt:value], visibleCPUType,nil] forKeys:profileDictKeys]];
 	}
@@ -77,7 +77,7 @@
 	error = sysctlbyname("hw.cpusubtype", &value, &length, NULL, 0);
 	if (error == 0) {
 		NSString *visibleCPUSubType = nil;
-		if (cpuType == 7) {
+		if (cpuType == CPU_TYPE_X86) {
 			// Intel
             char stringValue[255];
             size_t stringLength = sizeof(stringValue);
@@ -94,13 +94,14 @@
             if (!visibleCPUSubType) {
                 visibleCPUSubType = is64bit ? @"Intel Core 2" : @"Intel Core";	// If anyone knows how to tell a Core Duo from a Core Solo, please email tph@atomicbird.com
             }
-		} else if (cpuType == 18) {
+		} else if (cpuType == CPU_TYPE_POWERPC) {
 			// PowerPC
 			switch(value) {
-				case 9:					visibleCPUSubType=@"G3";	break;
-				case 10:	case 11:	visibleCPUSubType=@"G4";	break;
-				case 100:				visibleCPUSubType=@"G5";	break;
-				default:				visibleCPUSubType=@"Other";	break;
+				case CPU_SUBTYPE_POWERPC_750:  visibleCPUSubType=@"G3";    break;
+				case CPU_SUBTYPE_POWERPC_7400:
+                case CPU_SUBTYPE_POWERPC_7450: visibleCPUSubType=@"G4";    break;
+				case CPU_SUBTYPE_POWERPC_970:  visibleCPUSubType=@"G5";    break;
+				default:                       visibleCPUSubType=@"Other"; break;
 			}
 		} else {
 			visibleCPUSubType = @"Other";
