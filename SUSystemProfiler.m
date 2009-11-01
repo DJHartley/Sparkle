@@ -34,9 +34,9 @@
 	// Gather profile information and append it to the URL.
 	NSMutableArray *profileArray = [NSMutableArray array];
 	NSArray *profileDictKeys = [NSArray arrayWithObjects:@"key", @"displayKey", @"value", @"displayValue", nil];
-	int error = 0 ;
-	int value = 0 ;
-	unsigned long length = sizeof(value) ;
+	int error = 0;
+	int value = 0;
+	unsigned long length = sizeof(value);
 	
 	// OS version
 	NSString *currentSystemVersion = [SUHost systemVersionString];
@@ -56,11 +56,16 @@
 		}
 		[profileArray addObject:[NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:@"cputype",@"CPU Type", [NSNumber numberWithInt:value], visibleCPUType,nil] forKeys:profileDictKeys]];
 	}
+    length = sizeof(value);
 	error = sysctlbyname("hw.cpu64bit_capable", &value, &length, NULL, 0);
-	if(error != 0)
+	if(error != 0) {
+        length = sizeof(value);
 		error = sysctlbyname("hw.optional.x86_64", &value, &length, NULL, 0); //x86 specific
-	if(error != 0)
+    }
+	if(error != 0) {
+        length = sizeof(value);
 		error = sysctlbyname("hw.optional.64bitops", &value, &length, NULL, 0); //PPC specific
+    }
 	
 	BOOL is64bit = NO;
 	
@@ -68,6 +73,7 @@
 		is64bit = value == 1;
 		[profileArray addObject:[NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:@"cpu64bit", @"CPU is 64-Bit?", [NSNumber numberWithBool:is64bit], is64bit ? @"Yes" : @"No", nil] forKeys:profileDictKeys]];
 	}
+    length = sizeof(value);
 	error = sysctlbyname("hw.cpusubtype", &value, &length, NULL, 0);
 	if (error == 0) {
 		NSString *visibleCPUSubType = nil;
@@ -103,8 +109,7 @@
 	}
 	error = sysctlbyname("hw.model", NULL, &length, NULL, 0);
 	if (error == 0) {
-		char *cpuModel;
-		cpuModel = (char *)malloc(sizeof(char) * length);
+		char *cpuModel = (char *)malloc(sizeof(char) * length);
 		error = sysctlbyname("hw.model", cpuModel, &length, NULL, 0);
 		if (error == 0) {
 			NSString *rawModelName = [NSString stringWithUTF8String:cpuModel];
@@ -118,6 +123,7 @@
 	}
 	
 	// Number of CPUs
+    length = sizeof(value);
 	error = sysctlbyname("hw.ncpu", &value, &length, NULL, 0);
 	if (error == 0)
 		[profileArray addObject:[NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:@"ncpu",@"Number of CPUs", [NSNumber numberWithInt:value], [NSNumber numberWithInt:value],nil] forKeys:profileDictKeys]];
